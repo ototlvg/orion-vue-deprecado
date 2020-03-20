@@ -1,21 +1,26 @@
 <template>
     <div class="home">
-        <div class="wrapper">
-            <div class="section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)" :class="{green: section, warning: !section}">
-                <div class="section__data">
-                    <h2 class="section__data__title">Seccion {{index+1}}</h2>
-                    <h3 class="section__data__status" v-if="section">Contestado</h3>
-                    <h3 class="section__data__status" v-else>Pendiente</h3>
+        <div class="home__wrapper"> 
+
+            <section class="home__wrapper__section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)">
+                <div class="section" :class="{green: section, warning: !section}" >
+                    <div class="section__data">
+                        <h2 class="section__data__title">Seccion {{index+1}}</h2>
+                        <h3 class="section__data__status" v-if="section">Contestado</h3>
+                        <h3 class="section__data__status" v-else>Pendiente</h3>
+                    </div>
+                    <div class="section__image">
+                    <div class="section__image__circle" :class="{green: section, warning: !section}">
+                        <!-- <svg v-if="section" class="caramelo" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="check"><polyline fill="none" stroke="#ffff" stroke-width="1.1" points="4,10 8,15 17,4"></polyline></svg>
+                        <svg v-else class="caramelo" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="clock"><circle fill="none" stroke="#fff" stroke-width="1.1" cx="10" cy="10" r="9"></circle><rect fill="#fff" x="9" y="4" width="1" height="7"></rect><path fill="#fff" stroke="#fff" stroke-width="1.1" d="M13.018,14.197 L9.445,10.625"></path></svg> -->
+                        <span v-if="section" uk-icon="icon: check; ratio: 2" class="uk-icon-link"></span>
+                        <span v-else uk-icon="icon: clock; ratio: 2" class="uk-icon-link clock"></span>
+                    </div>
+                    </div>
                 </div>
-                <div class="section__image">
-                <div class="section__image__circle" :class="{green: section, warning: !section}">
-                    <!-- <svg v-if="section" class="caramelo" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="check"><polyline fill="none" stroke="#ffff" stroke-width="1.1" points="4,10 8,15 17,4"></polyline></svg>
-                    <svg v-else class="caramelo" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="clock"><circle fill="none" stroke="#fff" stroke-width="1.1" cx="10" cy="10" r="9"></circle><rect fill="#fff" x="9" y="4" width="1" height="7"></rect><path fill="#fff" stroke="#fff" stroke-width="1.1" d="M13.018,14.197 L9.445,10.625"></path></svg> -->
-                    <span v-if="section" uk-icon="icon: check; ratio: 2" class="uk-icon-link"></span>
-                    <span v-else uk-icon="icon: clock; ratio: 2" class="uk-icon-link clock"></span>
-                </div>
-                </div>
-            </div>
+
+            </section>
+
         </div>
     </div>
     
@@ -25,8 +30,27 @@
 export default {
     name: 'Home',
     created(){
+        // console.log('created ejecutado')
+        let este=this
+        if(this.$store.getters.getPersonal.length == 0){
+            this.$store.dispatch('getPersonal')
+                .then(response => {
+                    // console.log(response)
+                    este.$store.commit('setPersonal', [response])
+                })
+
+        }else{
+        }
+
         this.$store.dispatch('getSections')
             .then(response => {
+                let arrSum= response.reduce( (a,b) => a + b);
+                // console.log(response.length)
+                if(arrSum == response.length){
+                    console.log('Vamonos de aqui')
+                    this.$router.push({ name: 'finished'})
+                }
+
                 this.$store.commit('setSections', response)
             })
         this.$store.getters.showSectionCompleted.status ? this.showSectionCompleted() : false
@@ -42,7 +66,7 @@ export default {
         },
         questions(){
             return this.$store.getters.getQuestions
-        }
+        },
     },
     methods:{
         goToSection(index){
@@ -52,31 +76,36 @@ export default {
                 .then(response => {
                     this.$store.commit('setPaginate', page)
                     this.$store.commit('setQuestions', response.data)
-                    if(this.questions[0].answer){ // Si es null esto sera false
+                    if(this.questions[0].answer != null){ // Si es null esto sera false
                         this.$router.push({ name: 'questionsDashboard'})
-                        // console.log('Vamos al dashboard')
+                        console.log('Vamos al dashboard')
                     }else{
-                        // console.log('Vamos a la primera pregunta')
+                        console.log('Vamos a la primera pregunta')
                         this.$router.push({ name: 'surveyQuestion', params: { id: '1' } })
                     }
                 })
         },
         evaluate(index){
             if(this.$store.getters.getSections[index] == 1){
-                Swal.fire({
-                title: '¿Esta seguro?',
-                text: "Ya terminaste de contestar esta encuesta",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, deseo contestarla de nuevo',
-                cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.value) {
-                        this.goToSection(index)
-                    }
-                })
+                // Encuesta contestada
+                // Swal.fire({
+                // title: '¿Esta seguro?',
+                // text: "Ya terminaste de contestar esta encuesta",
+                // icon: 'warning',
+                // showCancelButton: true,
+                // confirmButtonColor: '#3085d6',
+                // cancelButtonColor: '#d33',
+                // confirmButtonText: 'Si, deseo contestarla de nuevo',
+                // cancelButtonText: 'Cancelar'
+                // }).then((result) => {
+                //     if (result.value) {
+                //         this.goToSection(index)
+                //     }
+                // })
+
+                // Nuevo 
+                Swal.fire('Encuesta contestada')
+
             }else{
                 this.goToSection(index)
             }
@@ -118,24 +147,27 @@ $fondo: $background;
     background-color: $fondo;
     @include componentFather;
     width: 100%;
+    &__wrapper{
+        // padding: 2em; // Extra
+        @media (min-width: $medium) {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 2em;
+        }
+        @media (min-width: $large){
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto;
+            grid-gap: 2em;
+        }
+        &__section{
+            display: flex;
+            justify-content: center;
+        }
+    }
 }
 
-.wrapper{
-    // padding: 2em; // Extra
-    @media (min-width: $medium) {
-        max-width: 1100px;
-        margin: 0 auto;
-        display: grid;
-        // flex-wrap: wrap
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-template-rows: auto;
-        grid-gap: 1em;
-    }
-    @media (min-width: $large){
-        // max-width: 900px;
-        // background: red;
-    }
-}
 
 // .green{
 //     background-color: $green;
@@ -153,6 +185,7 @@ $paddingInner: 1.5em;
     margin-bottom: 1em;
     box-shadow:0 0 5px rgba(0, 0, 0, 0.5);
     transition: transform 0.2s, background-color 1s;
+    width: 100%;
     &.green{
         background-color: $green;
     }
@@ -160,7 +193,7 @@ $paddingInner: 1.5em;
         background-color: #FF9601;
     }
     @media (min-width: $medium) {
-        width: 250px;
+        // width: 250px;
         margin:0;
         display: grid;
         grid-template-columns: 1fr;

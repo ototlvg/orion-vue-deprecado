@@ -1,6 +1,6 @@
 <template>
     <div class="register">
-        <div class="aksldj">Aqui va el registerss</div>
+        <div class="aksldj">Pendiente</div>
     </div>
     
 </template>

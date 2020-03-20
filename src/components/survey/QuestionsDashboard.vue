@@ -3,10 +3,8 @@
         <div class="qdashboard__wrapper">
             <div class="qdashboard__wrapper__title-container">
                 <ul class="uk-breadcrumb">
-                    <li>Inicio</li>
+                    <li class="home" @click="home">Inicio</li>
                     <li>Sección {{Section}}</li>
-                    <!-- <li class="uk-disabled"><a>Disabled</a></li>
-                    <li><span>Active</span></li> -->
                 </ul>
             </div>
 
@@ -14,9 +12,19 @@
             <div class="qdashboard__wrapper__questions-container">
                 
                 <div class="qdashboard__wrapper__questions-container__item-container" v-for="(question,index) in getQuestions" :key="index" >
-                    <div @click="prueba(index+1)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answer == null}">
+                    
+                    <!-- Quita el v-if -->
+                    <div v-if="question.answer == null" @click="prueba(index+1)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answer == null}">
                         <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p>
                     </div>
+
+                    <!-- Y elimina esto de abajo y todo vuelve a la normalidad -->
+                    <div v-else class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answer == null}">
+                        <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p>
+                    </div>
+
+
+
                 </div>
 
             </div>
@@ -51,8 +59,10 @@ export default {
     methods: {
         prueba(pregunta){
             this.$router.push({ name: 'surveyQuestion', params: { id: pregunta } })
-        }   
-
+        }   ,
+        home(){
+            this.$router.push({ name: 'home'})
+        }
     }
     
 }
@@ -91,6 +101,9 @@ export default {
             .uk-breadcrumb{
                 justify-content: center !important;
                 margin: 0 !important;
+                .home{
+                    cursor: pointer;
+                }
             }
         }
 
@@ -105,6 +118,9 @@ export default {
             }
             @media (min-width: $large){
                 grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+                max-width: 800px;
+                // background: red;
+                margin: 0 auto;
             }
             grid-template-rows: auto;
             grid-gap: 1em;
@@ -126,7 +142,14 @@ export default {
                         color: $background;
                     }
                     &.active{
-                        background-color: skyblue;
+                        @media (min-width: $large){
+                            cursor: pointer;
+                            transition: all 0.3s;
+                            &:hover{
+                                transform: scale(1.2);
+                            }
+                        }
+                        background-color: #2294F2;
                         p{
                             color: white;
                         }

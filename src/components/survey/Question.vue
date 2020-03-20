@@ -7,6 +7,9 @@
                     <span uk-icon="icon: chevron-left"></span>
                     <p>Atras</p>
                 </div>
+                <div class="question__wrapper__header__list">
+                    <span uk-icon="icon: grid; ratio: 1.3" @click="goToDashboard"></span>
+                </div>
                 <div class="question__wrapper__header__pages">
                     <p>{{idRoute}}/{{questionsLength}}</p>
                 </div>
@@ -20,7 +23,7 @@
                 </div>
 
 
-                <div class="question__wrapper__body__answers-container">
+                <div class="question__wrapper__body__answers-container" v-show="!loading">
 
                     <div @click="answer(true)" class="question__wrapper__body__answers-container__button question__wrapper__body__answers-container__button--true">
                         <p>Verdadero</p>
@@ -30,18 +33,7 @@
                     </div>
 
                 </div>
-
-
-
-
-                <!-- <div class="coco">{{loading}}</div>
-                <button @click="answer(true)" :class="{ loading: loading }">Cierto</button>
-                <button @click="answer(false)" :class="{ loading: loading }">Falso</button> -->
             </section>
-
-            
-
-            <!-- <button @click="nextQuestion">Siguiente</button> -->   
 
         </div>
 
@@ -53,7 +45,11 @@
 export default {
     name: 'Question',
     created(){
-        // console.log('created ejecutado')
+        // if(this.$store.getters.getPaginate==null){
+
+        //     this.$router.push({ name: 'home'})
+        // }else{
+        // }
         this.$store.commit('setDisabled',true)
     },
     data(){
@@ -108,6 +104,12 @@ export default {
         goBack(){
             this.$router.go(-1)
         },
+        leaving(){
+            this.$router.push({ name: 'home'})
+        },
+        goToDashboard(){
+            this.$router.push({ name: 'questionsDashboard'})
+        }
     },
     watch: {
         $route(to, from) {
@@ -219,9 +221,11 @@ $padding-x: 2.5em;
                     cursor: pointer;
                     box-shadow:0 0 3px rgba(0, 0, 0, 0.5);
                     transition: all 0.2s;
-                    &:hover{
-                        transform: scale(1.1);
-                        box-shadow:0 0 9px rgba(0, 0, 0, 0.5);
+                    @media (min-width: $large){
+                        &:hover{
+                            transform: scale(1.1);
+                            box-shadow:0 0 9px rgba(0, 0, 0, 0.5);
+                        }
                     }
                     &:nth-child(odd){
                         margin-bottom: 2em;

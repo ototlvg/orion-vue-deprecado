@@ -8,15 +8,16 @@ axios.defaults.baseURL = 'http://orion.com/api'
 export const store = new Vuex.Store({
     state: {
         token: localStorage.getItem('access_token') || null,
-        patientCode: "a34a12588d6ca16e9766a9618daff229f484ef84",
-        patiendID: "eyJpdiI6IlBpdVo3bUpZS1p6RXQyNFRka2gzTmc9PSIsInZhbHVlIjoicEpRYkFRczlKeG9vRFVvMzZMZkc1Zz09IiwibWFjIjoiMDc5MjllMzUyZmM3ZmYxNDg3NzFiODZiMjgxN2Q4Y2MwNjkzMWUwMDdjZTY3NGYxMTJlZmQ5NmFmZThiMjc3MCJ9",
+        patientCode: localStorage.getItem('patient_code') || null,
+        patiendID: localStorage.getItem('patient_id') || null,
         sections: null,
         paginate: null,
         questions: null,
         loading: false,
         disabled: false,
-        personal: {name: 'Jason', apaterno: 'Torres', amaterno: 'Luis'},
+        personal: [],
         showSectionCompleted: { status: false, section: null },
+        st: null,
     },
     getters: {
         getSections(state) {
@@ -42,8 +43,10 @@ export const store = new Vuex.Store({
         },
         showSectionCompleted(state){
             return state.showSectionCompleted
-        }
-
+        },
+        getPersonal(state){
+            return state.personal
+        },
     },
     mutations: {
         // addTodo(state, todo) {
@@ -78,6 +81,32 @@ export const store = new Vuex.Store({
         setShowSectionCompleted(state, data){
             state.showSectionCompleted.status= data.status
             state.showSectionCompleted.section= data.section
+        },
+        setPatientCode(state, code){
+            state.patientCode= code;
+        },
+        setPatiendID(state, id){
+            state.patiendID= id;
+        },
+        logout(state){
+            // state.patiendID=null
+            // state.patientCode=null
+            // state.sections= null
+            // state.personal=null
+
+            state.token=null
+            state.patientCode= null
+            state.patiendID= null
+            state.sections= null
+            state.paginate= null
+            state.questions= null
+            state.loading= false
+            state.disabled= false,
+            state.personal=[],
+            state.showSectionCompleted= { status: false, section: null }
+        },
+        setPersonal(state, data){
+            state.personal= data
         }
 
         // goToSection(state, index){
@@ -164,6 +193,44 @@ export const store = new Vuex.Store({
             })
         },
         getPersonalInfo(){
+
+        },
+
+        login(context, code){
+            return new Promise((resolve, reject) => {
+                axios.post('/login', {
+                    code: code
+                })
+                .then(function (response) {
+                    // console.log(response);
+                    
+                    resolve(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    reject(error)
+                });
+            })
+
+        },
+
+        getPersonal(context, code){
+            return new Promise((resolve, reject) => {
+                axios.get('/getpersonal', {
+                    params: {
+                        id: context.getters.getPatiendID,
+                    }
+                })
+                    .then(function (response) {
+                        // context.commit('setSections', response.data)
+                        // console.log(response);
+                        resolve(response.data)
+                    })
+                    .catch(function (error) {
+                        // console.log(error);
+                        reject(error)
+                    })
+            })
 
         }
 

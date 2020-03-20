@@ -8,6 +8,12 @@
 <script>
 export default {
     name: 'Logout',
+    created(){
+        localStorage.removeItem('patient_id')
+        localStorage.removeItem('patient_code')
+        this.$store.commit('logout')
+        this.$router.push({ name: 'login'})
+    },
     data(){
         return {
             welcome: 'Bienvenido'

@@ -29,6 +29,38 @@ const router = new VueRouter({
   mode: 'history'
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (store.getters.getPatiendID == null) {
+      next({
+        name: 'login',
+      })
+    } else {
+      next()
+    }
+  } else if (to.matched.some(record => record.meta.requiresData)) {
+    if (store.getters.getPaginate == null) {
+      next({
+        name: 'home',
+      })
+    } else {
+      next()
+    }
+  }
+  else if (to.matched.some(record => record.meta.requiresVisitor)) {
+    if (store.getters.getPatiendID != null) {
+      next({
+        name: 'home',
+      })
+    } else {
+      next()
+    }
+  } 
+  else {
+    next()
+  }
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
