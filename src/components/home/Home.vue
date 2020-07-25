@@ -1,6 +1,25 @@
 <template>
-    <div class="home">
-        <div class="home__wrapper"> 
+    <div class="home" :class="{nopadding: showCreateSections}">
+        <div class="home__create-sections" v-if="showCreateSections">
+            <div class="home__create-sections__wrapper">
+                <h2>{{sectionMessage}}</h2>
+                <button @click="createSections" class="uk-button uk-button-primary" v-if="!creatingSections">Crear secciones!</button>
+                <div class="home__create-sections__wrapper__loading-container" v-if="creatingSections">
+                    <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube1"></div>
+                        <div class="sk-cube sk-cube2"></div>
+                        <div class="sk-cube sk-cube3"></div>
+                        <div class="sk-cube sk-cube4"></div>
+                        <div class="sk-cube sk-cube5"></div>
+                        <div class="sk-cube sk-cube6"></div>
+                        <div class="sk-cube sk-cube7"></div>
+                        <div class="sk-cube sk-cube8"></div>
+                        <div class="sk-cube sk-cube9"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="home__wrapper" v-if="!showCreateSections"> 
 
             <section class="home__wrapper__section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)">
                 <div class="section" :class="{green: section, warning: !section}" >
@@ -21,6 +40,7 @@
 
             </section>
 
+
         </div>
     </div>
     
@@ -31,33 +51,17 @@ export default {
     name: 'Home',
     created(){
         // console.log('created ejecutado')
-        let este=this
-        if(this.$store.getters.getPersonal.length == 0){
-            this.$store.dispatch('getPersonal')
-                .then(response => {
-                    // console.log(response)
-                    este.$store.commit('setPersonal', [response])
-                })
-
-        }else{
-        }
-
-        this.$store.dispatch('getSections')
-            .then(response => {
-                let arrSum= response.reduce( (a,b) => a + b);
-                // console.log(response.length)
-                if(arrSum == response.length){
-                    console.log('Vamonos de aqui')
-                    this.$router.push({ name: 'finished'})
-                }
-
-                this.$store.commit('setSections', response)
-            })
-        this.$store.getters.showSectionCompleted.status ? this.showSectionCompleted() : false
+        this.getAll()
+        this.goToSectionWatcher = false
     },
     data(){
         return {
-            welcome: 'Bienvenido'
+            welcome: 'Bienvenido',
+            showCreateSections: false,
+            sectionMessage: 'Aun no has creado ninguna seccion para contestar',
+            creatingSections: false,
+            goToSectionWatcher: false,
+            page: -1
         }
     },
     computed: {
@@ -69,40 +73,98 @@ export default {
         },
     },
     methods:{
-        goToSection(index){
-            // console.log(this.$store.getters.getSections)
-            let page= index+1
-            this.$store.dispatch('getQuestionsOfSection',page)
+        getAll(){
+            let este=this
+            // if(this.$store.getters.getPersonal.length == 0){
+            //     this.$store.dispatch('getPersonal')
+            //         .then(response => {
+            //             // console.log(response)
+            //             este.$store.commit('setPersonal', [response])
+            //         })
+            // }else{
+            // }
+
+            this.$store.dispatch('getSections')
                 .then(response => {
-                    this.$store.commit('setPaginate', page)
-                    this.$store.commit('setQuestions', response.data)
-                    if(this.questions[0].answer != null){ // Si es null esto sera false
-                        this.$router.push({ name: 'questionsDashboard'})
-                        console.log('Vamos al dashboard')
-                    }else{
-                        console.log('Vamos a la primera pregunta')
-                        this.$router.push({ name: 'surveyQuestion', params: { id: '1' } })
+                    console.log(response)
+                    let arrSum= response.reduce( (a,b) => a + b);
+                    // console.log('Prime: ' + arrSum)
+                    if(arrSum == response.length){ // Encuesta ya contestada o sin autorizacion
+                        this.$router.push({ name: 'finished'})
+                    }else if(arrSum == 6.6){ // Faltan crear secciones, se activara boton
+                        this.showCreateSections= true
+                    }else if(arrSum == 8.2){
+                        // console.log('creando')
+                        this.showCreateSections= true
+                        this.creatingSections= true
+                        this.sectionMessage='Creando secciones, porfavor espere unos segundos y recargue la pagina'
                     }
+
+                    if(response.length == (arrSum+1)){
+                        this.$store.commit('setCheckFinalSection')
+                    }
+
+                    this.$store.commit('setSections', response)
+                })
+            this.$store.getters.showSectionCompleted.status ? this.showSectionCompleted() : false
+        },
+        goToSection(index){
+            let page= index+1
+            this.page = page
+            // this.$router.push({ name: 'survey', params: { page: `${page}` } })
+
+            // this.$router.push({ path: 'cuestionario/1/dashboard' })
+            // this.$router.push({ path: 'cuestionario/1/1' })
+
+            // this.$router.push({ path: 'cuestionario/1' })
+            let sections = this.$store.getters.getSectionsData
+
+            if(sections.length == 0){
+                // console.log('Sections totalmente vacio')
+                this.getSectionDataFromServer(page)
+            }else{
+                // console.log('Sections no esta vacio, se buscara')
+                const found = sections.find(element => element.questions.current_page == page);
+                if(found == undefined){
+                    this.getSectionDataFromServer(page)
+                }else{
+                    // console.log('Datos de la seccion encontrado en la aplicacion')
+                    this.$store.commit('setSectionData', found)
+                    this.goToSectionWatcher = true
+                }
+            }
+
+            // if(questions.length == 0){
+            //     console.log('No hay ninguna pregunta en el array de questions global')
+            //     this.getQuestionsFromServer(page)
+            // }else{
+            //     const found = questions.find(element => element.current_page == page);
+            //     if(found == undefined){
+            //         console.log('Las preguntas de esta seccion no estan en la app')
+            //         this.getQuestionsFromServer(page)
+            //     }else{
+            //         console.log('Encontrado:')
+            //         this.goToSectionWatcher = true
+            //         // console.log(found)
+            //     }
+            // }
+
+        },
+        getSectionDataFromServer(page){
+            let este = this
+            this.$store.dispatch('getSectionData',page)
+                .then(response => {
+                    console.log(response)
+                    este.$store.commit('setSectionsData',response)
+                    este.$store.commit('setSectionData', response)
+                    este.goToSectionWatcher = true
+                    // console.log('Hola mundo')
+                    // this.$store.commit('setSectionsData', response)
+                    // console.log(este.$store.getters.getQuestions)
                 })
         },
         evaluate(index){
             if(this.$store.getters.getSections[index] == 1){
-                // Encuesta contestada
-                // Swal.fire({
-                // title: '¿Esta seguro?',
-                // text: "Ya terminaste de contestar esta encuesta",
-                // icon: 'warning',
-                // showCancelButton: true,
-                // confirmButtonColor: '#3085d6',
-                // cancelButtonColor: '#d33',
-                // confirmButtonText: 'Si, deseo contestarla de nuevo',
-                // cancelButtonText: 'Cancelar'
-                // }).then((result) => {
-                //     if (result.value) {
-                //         this.goToSection(index)
-                //     }
-                // })
-
                 // Nuevo 
                 Swal.fire('Encuesta contestada')
 
@@ -129,6 +191,40 @@ export default {
             }).then((result) => {
                 este.$store.commit('setShowSectionCompleted', { status: false, section: null })
             })
+        },
+        createSections(){
+            let este= this
+            this.creatingSections= true
+            this.sectionMessage='Creando secciones, porfavor no recargue la pagina'
+            this.$store.dispatch('createSections')
+                .then(response => {
+                    if(response == 1){
+                        // console.log('listo')
+                        este.showCreateSections= false
+                        este.getAll()
+                    }
+                })
+            
+        },
+
+    },
+
+    watch: {
+        goToSectionWatcher(){
+            // console.log(this.goToSectionWatcher)
+            if(this.goToSectionWatcher == true){
+                // console.log('Vamos a pregunta')
+
+                let firstQuestionIsAnswered = this.$store.getters.getSectionData.sectionStatus[0].answered
+                this.$router.push({ path: `cuestionario/${this.page}/dashboard` })
+                
+                // if(!firstQuestionIsAnswered){
+                //     this.$router.push({ path: `cuestionario/${this.page}/1` })
+                // }else{
+                //     this.$router.push({ path: `cuestionario/${this.page}/dashboard` })
+                // }
+                this.goToSectionWatcher = false
+            }
         }
     }
     
@@ -147,6 +243,19 @@ $fondo: $background;
     background-color: $fondo;
     @include componentFather;
     width: 100%;
+    &__create-sections{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3em;
+        &__wrapper{
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+            // background: red;
+        }
+    }
     &__wrapper{
         // padding: 2em; // Extra
         @media (min-width: $medium) {
@@ -165,6 +274,10 @@ $fondo: $background;
             display: flex;
             justify-content: center;
         }
+    }
+    &.nopadding{
+        padding:0;
+        display: flex;
     }
 }
 
@@ -302,4 +415,70 @@ $paddingInner: 1.5em;
     }
     
 }
+
+
+.sk-cube-grid {
+  width: 40px;
+  height: 40px;
+  margin: 50px auto;
+}
+
+.sk-cube-grid .sk-cube {
+  width: 33%;
+  height: 33%;
+//   background-color: #333;
+  background-color: #1e87f0;
+  float: left;
+  -webkit-animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
+          animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out; 
+}
+.sk-cube-grid .sk-cube1 {
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s; }
+.sk-cube-grid .sk-cube2 {
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s; }
+.sk-cube-grid .sk-cube3 {
+  -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s; }
+.sk-cube-grid .sk-cube4 {
+  -webkit-animation-delay: 0.1s;
+          animation-delay: 0.1s; }
+.sk-cube-grid .sk-cube5 {
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s; }
+.sk-cube-grid .sk-cube6 {
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s; }
+.sk-cube-grid .sk-cube7 {
+  -webkit-animation-delay: 0s;
+          animation-delay: 0s; }
+.sk-cube-grid .sk-cube8 {
+  -webkit-animation-delay: 0.1s;
+          animation-delay: 0.1s; }
+.sk-cube-grid .sk-cube9 {
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s; }
+
+@-webkit-keyframes sk-cubeGridScaleDelay {
+  0%, 70%, 100% {
+    -webkit-transform: scale3D(1, 1, 1);
+            transform: scale3D(1, 1, 1);
+  } 35% {
+    -webkit-transform: scale3D(0, 0, 1);
+            transform: scale3D(0, 0, 1); 
+  }
+}
+
+@keyframes sk-cubeGridScaleDelay {
+  0%, 70%, 100% {
+    -webkit-transform: scale3D(1, 1, 1);
+            transform: scale3D(1, 1, 1);
+  } 35% {
+    -webkit-transform: scale3D(0, 0, 1);
+            transform: scale3D(0, 0, 1);
+  } 
+}
+
+
 </style>

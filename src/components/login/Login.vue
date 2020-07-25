@@ -78,7 +78,7 @@ export default {
         // justify-content: space-between;
         height: 450px;
         padding: 4em;
-        border-radius: 45px;
+        // border-radius: 45px;
         box-shadow: 0 6px 6px rgba(0,0,0,0.2);
         @media (min-width: $large){
             width: 30%;

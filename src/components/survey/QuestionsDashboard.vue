@@ -1,26 +1,30 @@
 <template>
     <div class="qdashboard">
+        <!-- <p>Dashboards</p> -->
         <div class="qdashboard__wrapper">
             <div class="qdashboard__wrapper__title-container">
                 <ul class="uk-breadcrumb">
                     <li class="home" @click="home">Inicio</li>
-                    <li>Sección {{Section}}</li>
+                    <li>Sección {{section}}</li>
                 </ul>
             </div>
-
+            <!-- {{questions}} -->
 
             <div class="qdashboard__wrapper__questions-container">
                 
-                <div class="qdashboard__wrapper__questions-container__item-container" v-for="(question,index) in getQuestions" :key="index" >
-                    
-                    <!-- Quita el v-if -->
-                    <div v-if="question.answer == null" @click="prueba(index+1)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answer == null}">
-                        <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p>
+                <div class="qdashboard__wrapper__questions-container__item-container" v-for="(question,index) in questions" :key="index" >
+                    <!-- <p>lkasjdklsaj</p> -->
+                    <!-- {{questions}} -->
+
+                    <div v-if="question.answered != true" @click="prueba(question.question)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answered == false}">
+                        <!-- <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p> -->
+                        <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{question.question}}</p>
                     </div>
 
-                    <!-- Y elimina esto de abajo y todo vuelve a la normalidad -->
-                    <div v-else class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answer == null}">
-                        <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p>
+
+                    <div v-else class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answered != true}">
+                        <!-- <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p> -->
+                        <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{question.question}}</p>
                     </div>
 
 
@@ -37,11 +41,12 @@
 export default {
     name: 'QuestionsDashboard',
     created(){
-        if(this.$store.getters.getPaginate){
+        // this.$router.push({ name: 'shera', params: { question: 1 } })
+        // if(this.$store.getters.getPaginate){
 
-        }else{
-            this.$router.push({ name: 'home'})
-        }
+        // }else{
+        //     this.$router.push({ name: 'home'})
+        // }
     },
     data(){
         return {
@@ -52,13 +57,16 @@ export default {
         getQuestions(){
             return this.$store.getters.getQuestions
         },
-        Section(){
-            return this.$store.getters.getPaginate
+        section(){
+            return this.$store.getters.getSectionData.questions.current_page
+        },
+        questions(){
+            return this.$store.getters.getSectionData.sectionStatus
         }
     },
     methods: {
-        prueba(pregunta){
-            this.$router.push({ name: 'surveyQuestion', params: { id: pregunta } })
+        prueba(question){
+            this.$router.push({ name: 'question', params: { question: question } })
         }   ,
         home(){
             this.$router.push({ name: 'home'})

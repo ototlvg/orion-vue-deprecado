@@ -11,6 +11,7 @@ export default {
     created(){
         localStorage.removeItem('patient_id')
         localStorage.removeItem('patient_code')
+        this.$store.commit('setRememberCode',null)
         this.$store.commit('logout')
         this.$router.push({ name: 'login'})
     },

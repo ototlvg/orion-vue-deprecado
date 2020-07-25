@@ -1,5 +1,10 @@
 <template>
     <div class="question">
+        <!-- <p>{{ $route.params }}</p> -->
+        <!-- <p>as;dksakldj</p> -->
+        <!-- <p>Estamos en el question</p>
+        <p>{{question}}</p>
+        <p>lkjsfdajkhdfilkashdjksh</p> -->
         <div class="question__wrapper">
 
             <section class="question__wrapper__header">
@@ -11,25 +16,28 @@
                     <span uk-icon="icon: grid; ratio: 1.3" @click="goToDashboard"></span>
                 </div>
                 <div class="question__wrapper__header__pages">
-                    <p>{{idRoute}}/{{questionsLength}}</p>
+                    <p>{{actualQuestion}}/75</p>
                 </div>
             </section>
 
-            <!-- Esto es lo blanco -->
             <section class="question__wrapper__body"> 
 
                 <div class="question__wrapper__body__question-container">
-                    <h2 class="question__wrapper__body__question-container__question">{{question.question.question}}</h2>
+                    <!-- <p>{{question}}</p> -->
+                    <h2 class="question__wrapper__body__question-container__question">{{question.id}}. {{question.question}}</h2>
                 </div>
 
+                <div class="question__wrapper__body__answers-container">
 
-                <div class="question__wrapper__body__answers-container" v-show="!loading">
-
-                    <div @click="answer(true)" class="question__wrapper__body__answers-container__button question__wrapper__body__answers-container__button--true">
+                    <div @click="answer(true)" class="question__wrapper__body__answers-container__button question__wrapper__body__answers-container__button--true" :class="{ loadingButton: loading }">
                         <p>Verdadero</p>
                     </div>
-                    <div @click="answer(false)" class="question__wrapper__body__answers-container__button question__wrapper__body__answers-container__button--false">
+                    <div @click="answer(false)" class="question__wrapper__body__answers-container__button question__wrapper__body__answers-container__button--false" :class="{ loadingButton: loading }">
                         <p>Falso</p>
+                    </div>
+
+                    <div class="question__wrapper__body__answers-container__overlay" v-show="loading">
+
                     </div>
 
                 </div>
@@ -50,6 +58,8 @@ export default {
         //     this.$router.push({ name: 'home'})
         // }else{
         // }
+        // this.$router.push({ path: 'cuestionario/1/dashboard' })
+        
         this.$store.commit('setDisabled',true)
     },
     data(){
@@ -58,17 +68,25 @@ export default {
         }
     },
     computed: {
-        idRoute(){
-            return this.$route.params.id
+        actualQuestion(){
+            return this.$route.params.question
         },
         question(){
-            return this.$store.getters.getQuestions[this.$route.params.id-1]
+            let questions = this.$store.getters.getSectionData.questions.data
+            // console.log(questions)
+            let este= this
+            let found = questions.find(element => element.id == este.actualQuestion);
+            console.log(found)
+            return found
         },
         questionsLength(){
             return this.$store.getters.getQuestions.length
         },
         loading(){
             return this.$store.getters.getLoading
+        },
+        checkLastSection(){
+            return this.$store.getters.getCheckFinalSection
         }
     },
     methods: {
@@ -86,17 +104,22 @@ export default {
             }
         },
         answer(answer){
-            this.$store.commit('setLoading',true)
-            let promise= this.$store.dispatch('saveAnswer', { id: this.question.question, answer: answer })
-            promise.then(value => {
-                this.$store.commit('setNewAnswer', { index: this.$route.params.id-1, answer: value.answer ? 1:0 })
-                // true pagina siguiente
-                this.nextQuestion() ? true : false
-                this.$store.commit('setLoading',false)
-            })
-            .catch(value =>{
-                console.log(value)
-            })
+            // this.$store.commit('setLoading',true)
+           this.$router.push({ name: 'question', params: { question: this.actualQuestion+1 } })
+           
+        //    let promise= this.$store.dispatch('saveAnswer', { id: this.question.question.id, answer: answer, checkLastSection: this.checkLastSection })
+        //     promise.then(value => {
+        //         // console.log(value)
+
+        //         this.$store.commit('setNewAnswer', { index: this.$route.params.id-1, answer: value.answer ? 1:0 })
+        //         // true pagina siguiente
+        //         this.nextQuestion() ? true : false
+        //         this.$store.commit('setLoading',false)
+
+        //     })
+        //     .catch(value =>{
+        //         console.log(value)
+        //     })
         },
         evaluate(answer){
 
@@ -108,7 +131,7 @@ export default {
             this.$router.push({ name: 'home'})
         },
         goToDashboard(){
-            this.$router.push({ name: 'questionsDashboard'})
+            this.$router.push({ name: 'dashboard'})
         }
     },
     watch: {
@@ -207,6 +230,29 @@ $padding-x: 2.5em;
                 flex-wrap: wrap;
                 justify-content: center;
                 flex-direction: column;
+                position: relative;
+                // &__spinner-container{
+                //     width: 100%;
+                //     background: white;
+                //     // background: blue;
+                //     position: absolute;
+                //     top: 0;
+                //     // opacity: 0.5;
+                //     // height: 245px;
+                //     display: flex;
+                //     align-items: center;
+                // }
+                &__overlay{
+                    width: 100%;
+                    height: 40px;
+                    // background-color: red;
+                    position: absolute;
+                    height: 300px;
+                    top: 0;
+                    @media (min-width: $medium){
+                        height: 200px;
+                    }
+                }
                 @media (min-width: $medium){
                     // max-width: 1070px;
                 }
@@ -245,8 +291,20 @@ $padding-x: 2.5em;
                         p{
                             color: black;
                         }
+                        &.loading{
+                            background-color: gray;
+                        }
 
                     }
+
+                    &.loadingButton{
+                        background-color: rgb(85, 85, 85);
+                        p{
+                            color: white;
+                        }
+                    }
+
+                    
                 }
             }
         }
@@ -257,6 +315,71 @@ $padding-x: 2.5em;
 
 .loading{
     display: none;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+
+.spinner {
+  margin: 100px auto;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  font-size: 10px;
+  @media (min-width: $large){
+    margin: 80px auto;
+
+  }
+}
+
+.spinner > div {
+  background-color: #FF3A46;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
+  
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
 }
 
 </style>

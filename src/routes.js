@@ -10,11 +10,14 @@ import Finished from './components/home/Finished'
 
 const routes = [
   {
+    path: '/', redirect: { name: 'home' }
+  },
+  {
     path: '/home',
     name: 'home',
     component: Home,
     meta: {
-      requiresAuth: true,
+      // requiresAuth: true,
     }
   },
   {
@@ -42,31 +45,34 @@ const routes = [
     }
   },
   {
-    path: '/cuestionario',
-    name: 'questionsDashboard',
-    component: QuestionsDashboard,
+    path: '/cuestionario/:page',
+    name: 'survey',
+    component: Survey,
     meta: {
-      requiresData: true,
-    }
-    // children: [
-    //     {
-    //         path: '/',
-    //         component: QuestionsDashboard
-    //     },
-    //     {
-    //         path: ':id',
-    //         component: Question
-    //     }
-    // ]
+      // requiresData: true,
+    },
+    children: [
+        {
+            path: 'dashboard',
+            component: QuestionsDashboard,
+            name: 'dashboard'
+        },
+        {
+            // path: 'energia/:id',
+            path: ':question',
+            component: Question,
+            name: 'question'
+        }
+    ]
   },
-  {
-    path: '/cuestionario/:id',
-    name: 'surveyQuestion',
-    component: Question,
-    meta: {
-      requiresData: true,
-    }
-  },
+  // {
+  //   path: '/cuestionario/:id',
+  //   name: 'surveyQuestion',
+  //   component: Question,
+  //   meta: {
+  //     requiresData: true,
+  //   }
+  // },
   {
     path: '/finalizado',
     name: 'finished',

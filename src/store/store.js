@@ -3,21 +3,25 @@ import Vuex from 'vuex'
 import axios from 'axios'
 
 Vue.use(Vuex)
+// axios.defaults.baseURL = 'http://starforce.xyz/api'
 axios.defaults.baseURL = 'http://orion.com/api'
+// axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
 
 export const store = new Vuex.Store({
     state: {
         token: localStorage.getItem('access_token') || null,
-        patientCode: localStorage.getItem('patient_code') || null,
-        patiendID: localStorage.getItem('patient_id') || null,
         sections: null,
         paginate: null,
-        questions: null,
+        questions: [],
         loading: false,
         disabled: false,
-        personal: [],
+        personal: [{"id":2,"name":"Prueba","apaterno":"Prueba","amaterno":"Prueba","gender":2,"marital_status":6,"birthday":"1972-10-11","job":2,"email":null,"survey_available":"eyJpdiI6IklyMnk2YUw3djJuRkJiRlNJS3hDa2c9PSIsInZhbHVlIjoiUGlNcVAxbGlUN0h4OVpRa3BJcmVGZz09IiwibWFjIjoiZDMzNDRjOWE0N2RhYmYwZWFlYTg4ZDZmZTljNTllMjhmMzEyYmNmNTBiMjA2N2E1NzA2NDE5MmQ3YTljMmYwYSJ9","completed_surveys":"eyJpdiI6IkFTZm5yZmlDSExzZkY2YmR3ZGxIS3c9PSIsInZhbHVlIjoiWWU5WG5GSFVMSGNaUnhyVnZFa2k3Zz09IiwibWFjIjoiM2M3ODQ0ZTMzNDk1NTUyYTgwN2I2ZGU2YzBmMmY2MjE0M2EzYTZlNWE1ZjY3NzlmMjRlOTI1MjU4ZDYwZGY2ZCJ9"}],
         showSectionCompleted: { status: false, section: null },
         st: null,
+        rememberCode: null,
+        checkFinalSection: false,
+        sectionsData: [],
+        sectionData: null
     },
     getters: {
         getSections(state) {
@@ -47,6 +51,21 @@ export const store = new Vuex.Store({
         getPersonal(state){
             return state.personal
         },
+        getRememberCode(state){
+            return state.rememberCode
+        },
+        getCheckFinalSection(state){
+            return state.checkFinalSection
+        },
+        getPersonalObj(state){
+            return state.personal[0]
+        },
+        getSectionsData(state){
+            return state.sectionsData
+        },
+        getSectionData(state){
+            return state.sectionData
+        }
     },
     mutations: {
         // addTodo(state, todo) {
@@ -64,7 +83,7 @@ export const store = new Vuex.Store({
         },
 
         setQuestions(state, questions) {
-            state.questions = questions
+            state.questions.push(questions)
         },
         setPaginate(state, page) {
             state.paginate = page
@@ -105,13 +124,26 @@ export const store = new Vuex.Store({
             state.personal=[],
             state.showSectionCompleted= { status: false, section: null }
         },
+
         setPersonal(state, data){
             state.personal= data
-        }
+        },
 
-        // goToSection(state, index){
-        //   this.router.push({ path: 'questionsDashboard' })
-        // }
+        setRememberCode(state, code){
+            state.rememberCode= code
+        },
+
+        setCheckFinalSection(state){
+            state.checkFinalSection= true
+        },
+
+        setSectionsData(state, data){
+            state.sectionsData.push(data)
+        },
+
+        setSectionData(state, data){
+            state.sectionData = data
+        }
 
 
 
@@ -135,14 +167,14 @@ export const store = new Vuex.Store({
             // let page= index+1
             return new Promise((resolve, reject) => {
                 // console.log(page)
-                axios.get('/getquestions', {
+                axios.get('/getquestionsprime', {
                     params: {
                         id: context.getters.getPatiendID,
                         page: page
                     }
                 })
                     .then(function (response) {
-                        // console.log(response);
+                        // console.log(response.data);
                         resolve(response.data)
                     })
                     .catch(function (error) {
@@ -158,28 +190,31 @@ export const store = new Vuex.Store({
             return new Promise((resolve, reject) => {
                 axios.get('/getsections', {
                     params: {
-                        patient_id: context.getters.getPatiendID,
+                        // patient_id: context.getters.getPatiendID,
                     }
                 })
                     .then(function (response) {
                         // context.commit('setSections', response.data)
-                        // console.log(response);
+                        // console.dir(response.data);
                         resolve(response.data)
                     })
                     .catch(function (error) {
-                        // console.log(error);
                         reject(error)
                     })
 
             })
         },
+        
         saveAnswer(context, question) {
-            // console.log(question)
+            // console.log(question.checkLastSection)
             return new Promise((resolve, reject) => {
                 axios.post('/saveanswer', {
                     id: question.id,
                     answer: question.answer,
                     patient: context.getters.getPatiendID,
+                    checkLastSection: question.checkLastSection,
+                    completedSurveys: context.getters.getPersonalObj.completed_surveys,
+                    surveyAvailable: context.getters.getPersonalObj.survey_available
                 })
                 .then(function (response) {
                     // console.log(response);
@@ -192,6 +227,7 @@ export const store = new Vuex.Store({
                 });
             })
         },
+
         getPersonalInfo(){
 
         },
@@ -230,6 +266,86 @@ export const store = new Vuex.Store({
                         // console.log(error);
                         reject(error)
                     })
+            })
+
+        },
+
+        getRegisterData(context){
+            return new Promise((resolve, reject) => {
+                axios.get('/register')
+                .then(function (response) {
+                  // handle success
+                //   console.log(response.data);
+                  resolve(response.data)
+                })
+                .catch(function (error) {
+                  // handle error
+                //   console.log(error);
+                  reject(error)
+                })
+                .then(function () {
+                  // always executed
+                });
+            })
+        },
+
+        storeUser(context, data){
+            return new Promise((resolve, reject) => {
+                axios.post('/register', data)
+                .then(function (response) {
+                    // console.log(response);
+                    resolve(response.data)
+                })
+                .catch(function (error) {
+                    // console.log('toy triste')
+                    // console.log(error.response.data);
+                    // reject(error.response.data)
+                    reject(error.response)
+                });
+
+            })
+
+        },
+
+        createSections(context){
+            return new Promise((resolve, reject) => {
+                axios.get('/createsections', {
+                    params: {
+                      patient_id: context.getters.getPatiendID
+                    }
+                  })
+                  .then(function (response) {
+                    // console.log(response.data);
+                    resolve(response.data)
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  })
+                  .then(function () {
+                    // always executed
+                  });  
+                
+
+            })
+        },
+
+        getSectionData(context, page){
+            return new Promise((resolve, reject) => {
+                axios.get('/getsectiondata', {
+                    params: {
+                      page: page
+                    }
+                  })
+                  .then(function (response) {
+                    // console.log(response.data);
+                    resolve(response.data)
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  })
+                  .then(function () {
+                    // always executed
+                  });
             })
 
         }

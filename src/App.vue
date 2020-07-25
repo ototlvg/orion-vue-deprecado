@@ -9,17 +9,23 @@
                 </div>
             </div>
 
-            <div class="uk-navbar-left uk-navbar-left-orion">
-                <a href="" class="uk-navbar-item uk-logo">Orion</a>
+            <div class="uk-navbar-left uk-navbar-left-orion" @click="goToHome">
+                <!-- <a v-on:click.stop.prevent="goToHome" href="" class="uk-navbar-item uk-logo">Orion</a> -->
+                <span href="" class="uk-navbar-item uk-logo">Orion</span>
             </div>
 
 
             <div class="uk-navbar-right uk-navbar-right-orion">
                 <ul class="uk-navbar-nav">
-                    <li v-if="loggin" class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
+                    <!-- <li v-if="loggin" class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
                     <li v-if="visitor" class="uk"><router-link :to="{ name: 'login' }">INICIAR SESION</router-link></li>
                     <li v-if="visitor" class="uk"><router-link :to="{ name: 'register' }">REGISTRARSE</router-link></li>
                     <li v-if="loggin" class="uk"><router-link :to="{ name: 'logout' }">Cerrar sesion</router-link></li>
+                    <li><a href=""></a></li> -->
+                    <li class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
+                    <li class="uk"><router-link :to="{ name: 'login' }">INICIAR SESION</router-link></li>
+                    <li class="uk"><router-link :to="{ name: 'register' }">REGISTRARSE</router-link></li>
+                    <li class="uk"><router-link :to="{ name: 'logout' }">Cerrar sesion</router-link></li>
                     <li><a href=""></a></li>
                 </ul>
             </div>
@@ -35,7 +41,7 @@
             </div>
 
             <ul class="aside__ul" @click="toggle">
-                <li v-if="loggin" class="aside__ul__li">
+                <!-- <li v-if="loggin" class="aside__ul__li">
                     <router-link class="aside__ul__li__link" :to="{ name: 'home' }">
                         <span class="aside__ul__li__link__icon" uk-icon="icon: home"></span>
                         <p class="aside__ul__li__link__title">Inicio</p>   
@@ -54,6 +60,30 @@
                     </router-link>
                 </li>
                 <li v-if="loggin" class="aside__ul__li">
+                    <router-link class="aside__ul__li__link" :to="{ name: 'logout' }">
+                        <span uk-icon="icon: sign-out" class="aside__ul__li__link__icon"></span>
+                        <p class="aside__ul__li__link__title">Cerrar sesion</p>
+                    </router-link>
+                </li> -->
+                <li class="aside__ul__li">
+                    <router-link class="aside__ul__li__link" :to="{ name: 'home' }">
+                        <span class="aside__ul__li__link__icon" uk-icon="icon: home"></span>
+                        <p class="aside__ul__li__link__title">Inicio</p>   
+                    </router-link>
+                </li>
+                <li class="aside__ul__li">
+                    <router-link class="aside__ul__li__link" :to="{ name: 'login' }">
+                        <span class="aside__ul__li__link__icon" uk-icon="icon: home"></span>
+                        <p class="aside__ul__li__link__title">Iniciar sesion</p>
+                    </router-link>
+                </li>
+                <li class="aside__ul__li">
+                    <router-link class="aside__ul__li__link" :to="{ name: 'register' }">
+                        <span class="aside__ul__li__link__icon" uk-icon="icon: file-edit"></span>
+                        <p class="aside__ul__li__link__title">Registrarse</p>
+                    </router-link>
+                </li>
+                <li class="aside__ul__li">
                     <router-link class="aside__ul__li__link" :to="{ name: 'logout' }">
                         <span uk-icon="icon: sign-out" class="aside__ul__li__link__icon"></span>
                         <p class="aside__ul__li__link__title">Cerrar sesion</p>
@@ -113,6 +143,10 @@ export default {
         },
         setDisabled(){
             this.$store.commit('setDisabled', false)
+        },
+        goToHome(){
+            console.log('go')
+            this.$router.push({ name: 'home' })
         }
     },
     watch: {

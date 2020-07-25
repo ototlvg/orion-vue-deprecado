@@ -1,0 +1,23 @@
+{
+  "prueba": null,
+  "genders": [
+    {"id": 1,"gender": "Femenino"},{"id": 2,"gender": "Masculino"}
+  ],
+  "marital": [
+    {"id": 1,"status": "Soltero"},
+    {"id": 2,"status": "Casado"},
+    {"id": 3,"status": "Union libre"},
+    {"id": 4,"status": "Divorciado"},
+    {"id": 5,"status": "Separado"},
+    {"id": 6,"status": "Viudo"}
+  ],
+  "jobs": [
+    {"id": 1,"name": "Estudiante",{"id": 2,"name": "Medico"},
+    {"id": 3,"name": "Ingeniero"}
+  ]
+}
+
+
+
+
+
