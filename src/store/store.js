@@ -16,12 +16,13 @@ export const store = new Vuex.Store({
         loading: false,
         disabled: false,
         personal: [{"id":2,"name":"Prueba","apaterno":"Prueba","amaterno":"Prueba","gender":2,"marital_status":6,"birthday":"1972-10-11","job":2,"email":null,"survey_available":"eyJpdiI6IklyMnk2YUw3djJuRkJiRlNJS3hDa2c9PSIsInZhbHVlIjoiUGlNcVAxbGlUN0h4OVpRa3BJcmVGZz09IiwibWFjIjoiZDMzNDRjOWE0N2RhYmYwZWFlYTg4ZDZmZTljNTllMjhmMzEyYmNmNTBiMjA2N2E1NzA2NDE5MmQ3YTljMmYwYSJ9","completed_surveys":"eyJpdiI6IkFTZm5yZmlDSExzZkY2YmR3ZGxIS3c9PSIsInZhbHVlIjoiWWU5WG5GSFVMSGNaUnhyVnZFa2k3Zz09IiwibWFjIjoiM2M3ODQ0ZTMzNDk1NTUyYTgwN2I2ZGU2YzBmMmY2MjE0M2EzYTZlNWE1ZjY3NzlmMjRlOTI1MjU4ZDYwZGY2ZCJ9"}],
-        showSectionCompleted: { status: false, section: null },
+        showMessageSectionCompleted: { status: false, section: null },
         st: null,
         rememberCode: null,
         checkFinalSection: false,
         sectionsData: [],
-        sectionData: null
+        sectionData: null,
+        homeAlreadyFirstLoaded: false
     },
     getters: {
         getSections(state) {
@@ -45,8 +46,8 @@ export const store = new Vuex.Store({
         getDisabled(state){
             return state.disabled
         },
-        showSectionCompleted(state){
-            return state.showSectionCompleted
+        getShowMessageSectionCompleted(state){
+            return state.showMessageSectionCompleted
         },
         getPersonal(state){
             return state.personal
@@ -65,6 +66,9 @@ export const store = new Vuex.Store({
         },
         getSectionData(state){
             return state.sectionData
+        },
+        getHomeAlreadyFirstLoaded(state){
+            return state.homeAlreadyFirstLoaded
         }
     },
     mutations: {
@@ -97,9 +101,9 @@ export const store = new Vuex.Store({
         setDisabled(state, status){
             state.disabled= status
         },
-        setShowSectionCompleted(state, data){
-            state.showSectionCompleted.status= data.status
-            state.showSectionCompleted.section= data.section
+        setShowMessageSectionCompleted(state, data){
+            state.showMessageSectionCompleted.status= data.status
+            state.showMessageSectionCompleted.section= data.section
         },
         setPatientCode(state, code){
             state.patientCode= code;
@@ -142,7 +146,26 @@ export const store = new Vuex.Store({
         },
 
         setSectionData(state, data){
-            state.sectionData = data
+            state.sectionData = JSON.parse(JSON.stringify(data))
+        },
+
+        setAnswerOfQuestion(state, data){
+            let questions = state.sectionData.sectionStatus
+            const question = (element) => element.question == data.question;
+            let index = questions.findIndex(question)
+
+            questions[index].answer=data.answer
+            // questions[index]
+            // console.log()
+        },
+
+        setNewSectionsStatus(state, page){
+            let index = page-1
+            state.sections[index] = 1
+        },
+
+        setHomeAlreadyFirstLoaded(state, status){
+            state.homeAlreadyFirstLoaded = status
         }
 
 
@@ -307,27 +330,27 @@ export const store = new Vuex.Store({
 
         },
 
-        createSections(context){
-            return new Promise((resolve, reject) => {
-                axios.get('/createsections', {
-                    params: {
-                      patient_id: context.getters.getPatiendID
-                    }
-                  })
-                  .then(function (response) {
-                    // console.log(response.data);
-                    resolve(response.data)
-                  })
-                  .catch(function (error) {
-                    console.log(error);
-                  })
-                  .then(function () {
-                    // always executed
-                  });  
+        // createSections(context){
+        //     return new Promise((resolve, reject) => {
+        //         axios.get('/createsections', {
+        //             params: {
+        //               patient_id: context.getters.getPatiendID
+        //             }
+        //           })
+        //           .then(function (response) {
+        //             // console.log(response.data);
+        //             resolve(response.data)
+        //           })
+        //           .catch(function (error) {
+        //             console.log(error);
+        //           })
+        //           .then(function () {
+        //             // always executed
+        //           });  
                 
 
-            })
-        },
+        //     })
+        // },
 
         getSectionData(context, page){
             return new Promise((resolve, reject) => {
@@ -348,6 +371,28 @@ export const store = new Vuex.Store({
                   });
             })
 
+        },
+
+        saveAnswersInServer(context, obj){
+            console.log('Pagina: ' + obj.page)
+            let questionsAnswers = context.getters.getSectionData.sectionStatus;
+            // console.log(questionsAnswers)
+            let data = questionsAnswers.filter( element => element.answered==false )
+            // console.log(data)
+            // QSAF1-1
+            return new Promise((resolve, reject) => {
+                axios.post('/saveanswers', {data: data, lastSection: obj.lastSection})
+                .then(function (response) {
+                    console.log(response.data);
+                    resolve(response.data)
+                })
+                .catch(function (error) {
+                    // console.log('toy triste')
+                    // console.log(error.response.data);
+                    // reject(error.response.data)
+                    reject(error.response)
+                });
+            })
         }
 
 

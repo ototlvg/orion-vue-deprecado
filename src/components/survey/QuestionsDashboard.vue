@@ -16,7 +16,7 @@
                     <!-- <p>lkasjdklsaj</p> -->
                     <!-- {{questions}} -->
 
-                    <div v-if="question.answered != true" @click="prueba(question.question)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{active: question.answered == false}">
+                    <div v-if="question.answered == false" @click="prueba(question.question)" class="qdashboard__wrapper__questions-container__item-container__item" :class="{green: question.answer != null, blue: question.answer==null}">
                         <!-- <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{index+1}}</p> -->
                         <p class="qdashboard__wrapper__questions-container__item-container__item__text">{{question.question}}</p>
                     </div>
@@ -149,7 +149,7 @@ export default {
                         margin: 0;
                         color: $background;
                     }
-                    &.active{
+                    &.blue{
                         @media (min-width: $large){
                             cursor: pointer;
                             transition: all 0.3s;
@@ -161,6 +161,20 @@ export default {
                         p{
                             color: white;
                         }
+                    }
+                    &.green{
+                        @media (min-width: $large){
+                            cursor: pointer;
+                            transition: all 0.3s;
+                            &:hover{
+                                transform: scale(1.2);
+                            }
+                        }
+                        background-color: #26AE60;
+                        p{
+                            color: white;
+                        }
+
                     }
                 }
 

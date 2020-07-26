@@ -1,6 +1,7 @@
 <template>
     <div class="home" :class="{nopadding: showCreateSections}">
-        <div class="home__create-sections" v-if="showCreateSections">
+        <!-- <div uk-spinner></div> -->
+        <!-- <div class="home__create-sections" v-if="showCreateSections">
             <div class="home__create-sections__wrapper">
                 <h2>{{sectionMessage}}</h2>
                 <button @click="createSections" class="uk-button uk-button-primary" v-if="!creatingSections">Crear secciones!</button>
@@ -18,13 +19,13 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="home__wrapper" v-if="!showCreateSections"> 
 
             <section class="home__wrapper__section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)">
                 <div class="section" :class="{green: section, warning: !section}" >
                     <div class="section__data">
-                        <h2 class="section__data__title">Seccion {{index+1}}</h2>
+                        <h2 class="section__data__title">Sección {{index+1}}</h2>
                         <h3 class="section__data__status" v-if="section">Contestado</h3>
                         <h3 class="section__data__status" v-else>Pendiente</h3>
                     </div>
@@ -50,8 +51,19 @@
 export default {
     name: 'Home',
     created(){
-        // console.log('created ejecutado')
-        this.getAll()
+
+        // this.getAll()
+        if(this.$store.getters.getHomeAlreadyFirstLoaded){
+            console.log('La informacion de sections ya esta en la app')
+        }else{
+            console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
+            this.$store.commit('setHomeAlreadyFirstLoaded', true)
+            this.getAll()
+        }
+
+        this.$store.getters.getShowMessageSectionCompleted.status ? this.showMessageSectionCompleted() : false
+
+
         this.goToSectionWatcher = false
     },
     data(){
@@ -86,7 +98,7 @@ export default {
 
             this.$store.dispatch('getSections')
                 .then(response => {
-                    console.log(response)
+                    // console.log(response)
                     let arrSum= response.reduce( (a,b) => a + b);
                     // console.log('Prime: ' + arrSum)
                     if(arrSum == response.length){ // Encuesta ya contestada o sin autorizacion
@@ -106,7 +118,6 @@ export default {
 
                     this.$store.commit('setSections', response)
                 })
-            this.$store.getters.showSectionCompleted.status ? this.showSectionCompleted() : false
         },
         goToSection(index){
             let page= index+1
@@ -120,15 +131,16 @@ export default {
             let sections = this.$store.getters.getSectionsData
 
             if(sections.length == 0){
-                // console.log('Sections totalmente vacio')
+                console.log('Sections totalmente vacio')
                 this.getSectionDataFromServer(page)
             }else{
-                // console.log('Sections no esta vacio, se buscara')
+                console.log('Sections no esta vacio, se buscara')
                 const found = sections.find(element => element.questions.current_page == page);
                 if(found == undefined){
+                    console.log('Section no encontrado, mandando a buscar al servidor')
                     this.getSectionDataFromServer(page)
                 }else{
-                    // console.log('Datos de la seccion encontrado en la aplicacion')
+                    console.log('Datos de la seccion encontrado en la aplicacion')
                     this.$store.commit('setSectionData', found)
                     this.goToSectionWatcher = true
                 }
@@ -180,32 +192,32 @@ export default {
                 confirmButtonText: 'Cool'
             })
         },
-        showSectionCompleted(){
+        showMessageSectionCompleted(){
             let este= this
             Swal.fire({
                 position: 'top-end',
                 icon: 'success',
-                title: `Seccion ${este.$store.getters.showSectionCompleted.section} contestada`,
+                title: `Seccion ${este.$store.getters.getShowMessageSectionCompleted.section} contestada`,
                 showConfirmButton: false,
                 timer: 1500
             }).then((result) => {
-                este.$store.commit('setShowSectionCompleted', { status: false, section: null })
+                este.$store.commit('setShowMessageSectionCompleted', { status: false, section: null })
             })
         },
-        createSections(){
-            let este= this
-            this.creatingSections= true
-            this.sectionMessage='Creando secciones, porfavor no recargue la pagina'
-            this.$store.dispatch('createSections')
-                .then(response => {
-                    if(response == 1){
-                        // console.log('listo')
-                        este.showCreateSections= false
-                        este.getAll()
-                    }
-                })
+        // createSections(){
+        //     let este= this
+        //     this.creatingSections= true
+        //     this.sectionMessage='Creando secciones, porfavor no recargue la pagina'
+        //     this.$store.dispatch('createSections')
+        //         .then(response => {
+        //             if(response == 1){
+        //                 // console.log('listo')
+        //                 este.showCreateSections= false
+        //                 este.getAll()
+        //             }
+        //         })
             
-        },
+        // },
 
     },
 

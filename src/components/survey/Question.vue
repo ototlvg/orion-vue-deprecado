@@ -1,10 +1,12 @@
 <template>
     <div class="question">
+        <!-- <p>{{lastQuestion.id}}</p> -->
         <!-- <p>{{ $route.params }}</p> -->
         <!-- <p>as;dksakldj</p> -->
         <!-- <p>Estamos en el question</p>
         <p>{{question}}</p>
         <p>lkjsfdajkhdfilkashdjksh</p> -->
+        <p>{{lastSection}}</p>
         <div class="question__wrapper">
 
             <section class="question__wrapper__header">
@@ -16,7 +18,7 @@
                     <span uk-icon="icon: grid; ratio: 1.3" @click="goToDashboard"></span>
                 </div>
                 <div class="question__wrapper__header__pages">
-                    <p>{{actualQuestion}}/75</p>
+                    <p>{{actualQuestion}}/{{lastQuestion.id}}</p>
                 </div>
             </section>
 
@@ -43,6 +45,10 @@
                 </div>
             </section>
 
+            <div v-if = "loading" class="question__loading">
+                <div uk-spinner="ratio: 3"></div>
+            </div>
+
         </div>
 
     </div>
@@ -61,32 +67,44 @@ export default {
         // this.$router.push({ path: 'cuestionario/1/dashboard' })
         
         this.$store.commit('setDisabled',true)
+        this.loading = false
     },
     data(){
         return {
-            welcome: 'Bienvenido'
+            welcome: 'Bienvenido',
+            loading: false
         }
     },
     computed: {
         actualQuestion(){
             return this.$route.params.question
         },
+        lastQuestion(){
+            let length = this.$store.getters.getSectionData.questions.data.length
+            return this.$store.getters.getSectionData.questions.data[length-1]
+        },
         question(){
             let questions = this.$store.getters.getSectionData.questions.data
             // console.log(questions)
             let este= this
             let found = questions.find(element => element.id == este.actualQuestion);
-            console.log(found)
+            // console.log(found)
             return found
         },
         questionsLength(){
             return this.$store.getters.getQuestions.length
         },
-        loading(){
-            return this.$store.getters.getLoading
-        },
+        // loading(){
+        //     return this.$store.getters.getLoading
+        // },
         checkLastSection(){
             return this.$store.getters.getCheckFinalSection
+        },
+        lastSection(){
+            let sections = this.$store.getters.getSections
+            let arrSum= sections.reduce( (a,b) => a + b);
+            let lengthSections = sections.length
+            return arrSum == (lengthSections-1)
         }
     },
     methods: {
@@ -105,7 +123,92 @@ export default {
         },
         answer(answer){
             // this.$store.commit('setLoading',true)
-           this.$router.push({ name: 'question', params: { question: this.actualQuestion+1 } })
+            // console.log(this.$route.params.page)
+            let este= this
+            let page = this.$route.params.page
+            let question = this.$route.params.question
+            // let sections = this.$store.getters.getSectionData.sectionStatus
+            // sections = JSON.parse(JSON.stringify(sections))
+            // let found = sections.find(element => element.question == question);
+            // found.answer = true
+            // console.log()
+            
+            console.log('Last question: ' + this.lastQuestion.id)
+            console.log('Actual page: ' + page)
+            
+            if(page <= this.lastQuestion.id){
+                this.$store.commit('setAnswerOfQuestion', { page: page, question: question, answer: answer })
+            }
+            
+            const questions = this.$store.getters.getSectionData.sectionStatus
+            const condition = element => element.answer !=null
+            let allQuestionsAnswered = questions.every(condition)
+
+            if(allQuestionsAnswered){
+                console.log('Todas las preguntas estan contestadas')
+                Swal.fire({
+                        title: 'Has contestado todas las preguntas',
+                        text: "¿Desea guardar sus repuestas?;",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+
+                        // console.log()
+                        
+                        if(result.value){
+                            este.loading = true
+                            
+                            este.$store.dispatch('saveAnswersInServer', { page: page, lastSection: este.lastSection })
+                                .then(data=>{
+                                    // QSAF1-1
+                                    // console.log(data)
+                                    
+                                    // este.$store.commit('setNewSectionsStatus', page)
+
+                                    // este.$store.commit('setShowMessageSectionCompleted', { status: true, section: page })
+
+                                    // este.$router.push({ name: 'home' })
+
+                                    
+                                })
+                                .catch(data=>{
+                                    console.log('error')
+                                    Swal.fire(
+                                        'Ha ocurrido un error',
+                                        'Porfavor vuelva a intentarlo',
+                                        'error'
+                                    )
+                                })
+                        }
+                        
+                        // if (result.value) {
+                        //     console.log('Elksad;')
+                        //     Swal.fire(
+                        //         'Deleted!',
+                        //         'Your file has been deleted.',
+                        //         'success'
+                        //     )
+                        // }
+
+                        
+                })
+            }else{
+                
+                if(this.actualQuestion < this.lastQuestion.id){
+                    // console.log(this.actualQuestion)
+                    this.$router.push({ name: 'question', params: { question: this.actualQuestion+1 } })
+                }else{
+                    console.log('Ya estas en la ultima pregunta, no se avanzara mas')
+                    this.$router.push({ name: 'dashboard' })
+                }
+
+            }
+
+
+
            
         //    let promise= this.$store.dispatch('saveAnswer', { id: this.question.question.id, answer: answer, checkLastSection: this.checkLastSection })
         //     promise.then(value => {
@@ -155,6 +258,7 @@ $padding-x: 2.5em;
     width: 100%;
     height: 100vh;
     display: flex;
+    position: relative;
     @media (min-width: $medium){
         flex-wrap: wrap;
     }
@@ -311,6 +415,17 @@ $padding-x: 2.5em;
 
     }
 
+    &__loading{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 .loading{
