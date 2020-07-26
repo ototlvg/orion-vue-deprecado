@@ -78,7 +78,7 @@ const routes = [
     name: 'finished',
     component: Finished,
     meta: {
-      requiresAuth: true,
+      // requiresAuth: true,
     }
   }
   

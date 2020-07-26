@@ -19,7 +19,7 @@ export const store = new Vuex.Store({
         showMessageSectionCompleted: { status: false, section: null },
         st: null,
         rememberCode: null,
-        checkFinalSection: false,
+        // checkFinalSection: false,
         sectionsData: [],
         sectionData: null,
         homeAlreadyFirstLoaded: false
@@ -55,9 +55,9 @@ export const store = new Vuex.Store({
         getRememberCode(state){
             return state.rememberCode
         },
-        getCheckFinalSection(state){
-            return state.checkFinalSection
-        },
+        // getCheckFinalSection(state){
+        //     return state.checkFinalSection
+        // },
         getPersonalObj(state){
             return state.personal[0]
         },
@@ -137,9 +137,9 @@ export const store = new Vuex.Store({
             state.rememberCode= code
         },
 
-        setCheckFinalSection(state){
-            state.checkFinalSection= true
-        },
+        // setCheckFinalSection(state){
+        //     state.checkFinalSection= true
+        // },
 
         setSectionsData(state, data){
             state.sectionsData.push(data)

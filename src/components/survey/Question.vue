@@ -6,7 +6,7 @@
         <!-- <p>Estamos en el question</p>
         <p>{{question}}</p>
         <p>lkjsfdajkhdfilkashdjksh</p> -->
-        <p>{{lastSection}}</p>
+        <!-- <p>{{lastSection}}</p> -->
         <div class="question__wrapper">
 
             <section class="question__wrapper__header">
@@ -166,11 +166,11 @@ export default {
                                     // QSAF1-1
                                     // console.log(data)
                                     
-                                    // este.$store.commit('setNewSectionsStatus', page)
+                                    este.$store.commit('setNewSectionsStatus', page)
 
-                                    // este.$store.commit('setShowMessageSectionCompleted', { status: true, section: page })
+                                    este.$store.commit('setShowMessageSectionCompleted', { status: true, section: page })
 
-                                    // este.$router.push({ name: 'home' })
+                                    este.$router.push({ name: 'home' })
 
                                     
                                 })

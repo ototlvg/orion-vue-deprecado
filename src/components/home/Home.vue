@@ -1,5 +1,6 @@
 <template>
-    <div class="home" :class="{nopadding: showCreateSections}">
+    <!-- <div class="home" :class="{nopadding: showCreateSections}"> -->
+    <div class="home">
         <!-- <div uk-spinner></div> -->
         <!-- <div class="home__create-sections" v-if="showCreateSections">
             <div class="home__create-sections__wrapper">
@@ -20,7 +21,7 @@
                 </div>
             </div>
         </div> -->
-        <div class="home__wrapper" v-if="!showCreateSections"> 
+        <div class="home__wrapper"> 
 
             <section class="home__wrapper__section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)">
                 <div class="section" :class="{green: section, warning: !section}" >
@@ -55,13 +56,19 @@ export default {
         // this.getAll()
         if(this.$store.getters.getHomeAlreadyFirstLoaded){
             console.log('La informacion de sections ya esta en la app')
+            this.evaluateSections()
         }else{
             console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
             this.$store.commit('setHomeAlreadyFirstLoaded', true)
             this.getAll()
         }
 
+        // let sectionsS = this.$store.getters.getSections
+        // console.log(sectionsS)
+
         this.$store.getters.getShowMessageSectionCompleted.status ? this.showMessageSectionCompleted() : false
+
+
 
 
         this.goToSectionWatcher = false
@@ -69,11 +76,11 @@ export default {
     data(){
         return {
             welcome: 'Bienvenido',
-            showCreateSections: false,
-            sectionMessage: 'Aun no has creado ninguna seccion para contestar',
-            creatingSections: false,
+            // showCreateSections: false,
+            // sectionMessage: 'Aun no has creado ninguna seccion para contestar',
+            // creatingSections: false,
             goToSectionWatcher: false,
-            page: -1
+            page: -1,
         }
     },
     computed: {
@@ -87,36 +94,22 @@ export default {
     methods:{
         getAll(){
             let este=this
-            // if(this.$store.getters.getPersonal.length == 0){
-            //     this.$store.dispatch('getPersonal')
-            //         .then(response => {
-            //             // console.log(response)
-            //             este.$store.commit('setPersonal', [response])
-            //         })
-            // }else{
-            // }
 
             this.$store.dispatch('getSections')
                 .then(response => {
-                    // console.log(response)
-                    let arrSum= response.reduce( (a,b) => a + b);
-                    // console.log('Prime: ' + arrSum)
-                    if(arrSum == response.length){ // Encuesta ya contestada o sin autorizacion
-                        this.$router.push({ name: 'finished'})
-                    }else if(arrSum == 6.6){ // Faltan crear secciones, se activara boton
-                        this.showCreateSections= true
-                    }else if(arrSum == 8.2){
-                        // console.log('creando')
-                        this.showCreateSections= true
-                        this.creatingSections= true
-                        this.sectionMessage='Creando secciones, porfavor espere unos segundos y recargue la pagina'
-                    }
-
-                    if(response.length == (arrSum+1)){
-                        this.$store.commit('setCheckFinalSection')
-                    }
-
                     this.$store.commit('setSections', response)
+                    this.evaluateSections()
+                    // console.log(response)
+
+                    // let arrSum= response.reduce( (a,b) => a + b);
+
+                    
+                    // // console.log('Prime: ' + arrSum)
+
+                    // if(arrSum == response.length){ // Encuesta ya contestada o sin autorizacion
+                    //     this.$router.push({ name: 'finished'})
+                    // }
+
                 })
         },
         goToSection(index){
@@ -204,20 +197,23 @@ export default {
                 este.$store.commit('setShowMessageSectionCompleted', { status: false, section: null })
             })
         },
-        // createSections(){
-        //     let este= this
-        //     this.creatingSections= true
-        //     this.sectionMessage='Creando secciones, porfavor no recargue la pagina'
-        //     this.$store.dispatch('createSections')
-        //         .then(response => {
-        //             if(response == 1){
-        //                 // console.log('listo')
-        //                 este.showCreateSections= false
-        //                 este.getAll()
-        //             }
-        //         })
-            
-        // },
+
+        evaluateSections(){
+            console.log('Evaluando si ir a finished ---------')
+
+
+            console.log(this.sections)
+
+            let arrSum= this.sections.reduce( (a,b) => a + b);
+            let sectionsLength = this.sections.length
+            console.log('Suma del array sections: ' + arrSum)
+            console.log('Tamaño del array sections: '  + sectionsLength)
+
+            if(arrSum == sectionsLength){ // Encuesta ya contestada o sin autorizacion
+                console.log('Vamos a finished')
+                // this.$router.push({ name: 'finished'})
+            }
+        }
 
     },
 
@@ -237,7 +233,10 @@ export default {
                 // }
                 this.goToSectionWatcher = false
             }
-        }
+        },
+        // sections(){
+        //     console.log('Canaria song')
+        // }
     }
     
 }
@@ -287,10 +286,10 @@ $fondo: $background;
             justify-content: center;
         }
     }
-    &.nopadding{
-        padding:0;
-        display: flex;
-    }
+    // &.nopadding{
+    //     padding:0;
+    //     display: flex;
+    // }
 }
 
 
