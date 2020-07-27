@@ -17,7 +17,7 @@ const routes = [
     name: 'home',
     component: Home,
     meta: {
-      // requiresAuth: true,
+      requiresAuth: true,
     }
   },
   {
@@ -49,7 +49,7 @@ const routes = [
     name: 'survey',
     component: Survey,
     meta: {
-      // requiresData: true,
+      requiresData: true,
     },
     children: [
         {

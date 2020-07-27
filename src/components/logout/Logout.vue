@@ -9,9 +9,10 @@
 export default {
     name: 'Logout',
     created(){
-        localStorage.removeItem('patient_id')
-        localStorage.removeItem('patient_code')
-        this.$store.commit('setRememberCode',null)
+        // localStorage.removeItem('patient_id')
+        // localStorage.removeItem('patient_code')
+        this.$store.commit('setCode',null)
+        sessionStorage.removeItem('access_code');
         this.$store.commit('logout')
         this.$router.push({ name: 'login'})
     },

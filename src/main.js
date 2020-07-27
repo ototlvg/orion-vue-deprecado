@@ -32,7 +32,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.getters.getPatiendID == null) {
+    if (store.getters.getCode == null) {
       next({
         name: 'login',
       })
@@ -40,7 +40,7 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else if (to.matched.some(record => record.meta.requiresData)) {
-    if (store.getters.getPaginate == null) {
+    if (store.getters.getSections == null) {
       next({
         name: 'home',
       })

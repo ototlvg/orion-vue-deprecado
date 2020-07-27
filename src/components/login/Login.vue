@@ -42,20 +42,25 @@ export default {
     methods: {
 
         login(){
+            let code = this.code
+            let router = this.$router
+            let store = this.$store
             this.$store.dispatch('login', this.code)
             .then(response => {
-                // console.log(response)
-                localStorage.setItem('patient_id', response.id_en)
-                localStorage.setItem('patient_code', this.code)
-                this.$store.commit('setPatientCode',this.code);
-                this.$store.commit('setPatiendID',response.id_en);
-                delete response.id_en
-                delete response.code
-                delete response.completed_surveys
-                delete response.survey_available
-                this.$store.commit('setPersonal', [response]);
-                // console.log(response)
-                this.$router.push({ name: 'home'})
+                sessionStorage.setItem('access_code', code);
+                store.commit('setCode', code)
+                router.push({ name: 'home'})
+                
+
+                // sessionStorage.setItem('access_code', 'value');
+                // delete response.id_en
+                // delete response.code
+                // delete response.completed_surveys
+                // delete response.survey_available
+                // this.$store.commit('setPersonal', [response]);
+            })
+            .catch( data => {
+                console.log(data.response)
             })
         }
     }   

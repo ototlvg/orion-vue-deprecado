@@ -1,26 +1,6 @@
 <template>
     <!-- <div class="home" :class="{nopadding: showCreateSections}"> -->
     <div class="home">
-        <!-- <div uk-spinner></div> -->
-        <!-- <div class="home__create-sections" v-if="showCreateSections">
-            <div class="home__create-sections__wrapper">
-                <h2>{{sectionMessage}}</h2>
-                <button @click="createSections" class="uk-button uk-button-primary" v-if="!creatingSections">Crear secciones!</button>
-                <div class="home__create-sections__wrapper__loading-container" v-if="creatingSections">
-                    <div class="sk-cube-grid">
-                        <div class="sk-cube sk-cube1"></div>
-                        <div class="sk-cube sk-cube2"></div>
-                        <div class="sk-cube sk-cube3"></div>
-                        <div class="sk-cube sk-cube4"></div>
-                        <div class="sk-cube sk-cube5"></div>
-                        <div class="sk-cube sk-cube6"></div>
-                        <div class="sk-cube sk-cube7"></div>
-                        <div class="sk-cube sk-cube8"></div>
-                        <div class="sk-cube sk-cube9"></div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
         <div class="home__wrapper"> 
 
             <section class="home__wrapper__section" v-for="(section,index) in sections" :key="index" @click="evaluate(index)">
@@ -58,7 +38,7 @@ export default {
             console.log('La informacion de sections ya esta en la app')
             this.evaluateSections()
         }else{
-            console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
+            // console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
             this.$store.commit('setHomeAlreadyFirstLoaded', true)
             this.getAll()
         }
@@ -97,18 +77,9 @@ export default {
 
             this.$store.dispatch('getSections')
                 .then(response => {
+                    // console.log(response)
                     this.$store.commit('setSections', response)
                     this.evaluateSections()
-                    // console.log(response)
-
-                    // let arrSum= response.reduce( (a,b) => a + b);
-
-                    
-                    // // console.log('Prime: ' + arrSum)
-
-                    // if(arrSum == response.length){ // Encuesta ya contestada o sin autorizacion
-                    //     this.$router.push({ name: 'finished'})
-                    // }
 
                 })
         },
@@ -139,33 +110,32 @@ export default {
                 }
             }
 
-            // if(questions.length == 0){
-            //     console.log('No hay ninguna pregunta en el array de questions global')
-            //     this.getQuestionsFromServer(page)
-            // }else{
-            //     const found = questions.find(element => element.current_page == page);
-            //     if(found == undefined){
-            //         console.log('Las preguntas de esta seccion no estan en la app')
-            //         this.getQuestionsFromServer(page)
-            //     }else{
-            //         console.log('Encontrado:')
-            //         this.goToSectionWatcher = true
-            //         // console.log(found)
-            //     }
-            // }
-
         },
         getSectionDataFromServer(page){
             let este = this
             this.$store.dispatch('getSectionData',page)
                 .then(response => {
-                    console.log(response)
+                    // console.log(response)
                     este.$store.commit('setSectionsData',response)
                     este.$store.commit('setSectionData', response)
                     este.goToSectionWatcher = true
-                    // console.log('Hola mundo')
-                    // this.$store.commit('setSectionsData', response)
-                    // console.log(este.$store.getters.getQuestions)
+                })
+                .catch(data=>{
+                    console.log(data.status)
+                    if(data.status == 401){
+                        Swal.fire(
+                            'El administrador desactivo las encuestas',
+                            'Para mas informacion favor de contactarse con el administrador',
+                            'error'
+                        )
+                    }else{
+                        Swal.fire(
+                            'Problemas en el servidor',
+                            'Porfavor intente mas tarde',
+                            'error'
+                        )
+                    }
+
                 })
         },
         evaluate(index){
@@ -199,19 +169,14 @@ export default {
         },
 
         evaluateSections(){
-            console.log('Evaluando si ir a finished ---------')
-
-
-            console.log(this.sections)
-
             let arrSum= this.sections.reduce( (a,b) => a + b);
             let sectionsLength = this.sections.length
-            console.log('Suma del array sections: ' + arrSum)
-            console.log('Tamaño del array sections: '  + sectionsLength)
+            // console.log('Suma del array sections: ' + arrSum)
+            // console.log('Tamaño del array sections: '  + sectionsLength)
 
             if(arrSum == sectionsLength){ // Encuesta ya contestada o sin autorizacion
                 console.log('Vamos a finished')
-                // this.$router.push({ name: 'finished'})
+                this.$router.push({ name: 'finished'})
             }
         }
 

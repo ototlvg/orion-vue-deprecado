@@ -113,6 +113,7 @@ export default {
     // Home
     },
     created(){
+        
         this.setDisabled()
         // UIkit.offcanvas(document.getElementById('my-id')).show();
     },

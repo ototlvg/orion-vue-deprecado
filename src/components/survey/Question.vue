@@ -153,7 +153,7 @@ export default {
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, delete it!'
+                        confirmButtonText: 'Si, desea guardarlos'
                     }).then((result) => {
 
                         // console.log()
@@ -174,13 +174,16 @@ export default {
 
                                     
                                 })
-                                .catch(data=>{
-                                    console.log('error')
-                                    Swal.fire(
-                                        'Ha ocurrido un error',
-                                        'Porfavor vuelva a intentarlo',
-                                        'error'
-                                    )
+                                .catch(error=>{
+                                    console.log()
+                                    este.loading = false
+                                    if(error.status == 401){
+                                        Swal.fire(
+                                            'El administrador desactivo las encuestas',
+                                            'Para mas informacion favor de contactarse con el administrador',
+                                            'error'
+                                        )
+                                    }
                                 })
                         }
                         

@@ -21,6 +21,9 @@ export default {
       msg: 'Welcome to Your Vue.js App'
     }
   },
+  created(){
+    this.$store.commit('setFinished')
+  },
   methods: {
     getFilter(){
       console.log(this.$store.getters.getFilter)
