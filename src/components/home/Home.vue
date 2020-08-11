@@ -38,7 +38,7 @@ export default {
             console.log('La informacion de sections ya esta en la app')
             this.evaluateSections()
         }else{
-            // console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
+            console.log('Status de Sections aun no estan en app, mandando a pedir al servidor')
             this.$store.commit('setHomeAlreadyFirstLoaded', true)
             this.getAll()
         }
@@ -80,7 +80,6 @@ export default {
                     // console.log(response)
                     this.$store.commit('setSections', response)
                     this.evaluateSections()
-
                 })
         },
         goToSection(index){
@@ -171,8 +170,8 @@ export default {
         evaluateSections(){
             let arrSum= this.sections.reduce( (a,b) => a + b);
             let sectionsLength = this.sections.length
-            // console.log('Suma del array sections: ' + arrSum)
-            // console.log('Tamaño del array sections: '  + sectionsLength)
+            console.log('Suma del array sections: ' + arrSum)
+            console.log('Tamaño del array sections: '  + sectionsLength)
 
             if(arrSum == sectionsLength){ // Encuesta ya contestada o sin autorizacion
                 console.log('Vamos a finished')

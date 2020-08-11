@@ -27,7 +27,37 @@ export default {
     mounted(){
         // this.$router.push({ path: 'cuestionario/1/dashboard' })
 
+    },
+    beforeRouteLeave (to, from, next) {
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "Las preguntas contestadas no seran guardadas",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Entendido'
+        }).then((result) => {
+            if (result.value) {
+                // Swal.fire(
+                //     'Deleted!',
+                //     'Your file has been deleted.',
+                //     'success'
+                // )
+                next()
+            }else{
+                next(false)
+            }
+        })
+
+        // const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+        // if (answer) {
+        //     next()
+        // } else {
+        //     next(false)
+        // }
     }
+
 }
 </script>>
 

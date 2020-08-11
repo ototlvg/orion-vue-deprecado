@@ -4,7 +4,10 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 // axios.defaults.baseURL = 'http://starforce.xyz/api'
-axios.defaults.baseURL = 'http://orion.com/api'
+// axios.defaults.baseURL = 'http://orion.com/api'
+axios.defaults.baseURL = 'http://localhost:4200/api'
+
+// 'http://localhost:4200/api/admin'
 // axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
 // axios.defaults.params['energia'] = 'kakaroto'
 
@@ -138,7 +141,7 @@ export const store = new Vuex.Store({
                 })
                     .then(function (response) {
                         // context.commit('setSections', response.data)
-                        // console.dir(response.data);
+                        // console.log(response.data);
                         resolve(response.data)
                     })
                     .catch(function (error) {

@@ -17,16 +17,16 @@
 
             <div class="uk-navbar-right uk-navbar-right-orion">
                 <ul class="uk-navbar-nav">
-                    <!-- <li v-if="loggin" class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
-                    <li v-if="visitor" class="uk"><router-link :to="{ name: 'login' }">INICIAR SESION</router-link></li>
-                    <li v-if="visitor" class="uk"><router-link :to="{ name: 'register' }">REGISTRARSE</router-link></li>
-                    <li v-if="loggin" class="uk"><router-link :to="{ name: 'logout' }">Cerrar sesion</router-link></li>
-                    <li><a href=""></a></li> -->
-                    <li class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
+                    <li v-if="logged" class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
+                    <li v-if="!logged" class="uk"><router-link :to="{ name: 'login' }">INICIAR SESION</router-link></li>
+                    <li v-if="!logged" class="uk"><router-link :to="{ name: 'register' }">REGISTRARSE</router-link></li>
+                    <li v-if="logged" class="uk"><router-link :to="{ name: 'logout' }">Cerrar sesion</router-link></li>
+                    
+                    <!-- <li class="uk"><router-link :to="{ name: 'home' }">INICIO</router-link></li>
                     <li class="uk"><router-link :to="{ name: 'login' }">INICIAR SESION</router-link></li>
                     <li class="uk"><router-link :to="{ name: 'register' }">REGISTRARSE</router-link></li>
                     <li class="uk"><router-link :to="{ name: 'logout' }">Cerrar sesion</router-link></li>
-                    <li><a href=""></a></li>
+                    <li><a href=""></a></li> -->
                 </ul>
             </div>
         </nav>
@@ -127,11 +127,11 @@ export default {
         isDisabled(){
             return this.$store.getters.getDisabled
         },
-        loggin(){
-            return this.$store.getters.getPatiendID ? true : false
-        },
-        visitor(){
-            return this.$store.getters.getPatiendID ? false : true 
+        // logged(){
+        //     return this.$store.getters.getPatiendID ? true : false
+        // },
+        logged(){
+            return this.$store.getters.getCode ? true : false
         },
         personal(){
             return this.$store.getters.getPersonal
