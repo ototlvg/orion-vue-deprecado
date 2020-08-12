@@ -4,8 +4,11 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 // axios.defaults.baseURL = 'http://starforce.xyz/api'
-// axios.defaults.baseURL = 'http://orion.com/api'
-axios.defaults.baseURL = 'http://localhost:4200/api'
+axios.defaults.baseURL = 'http://orion.com:4200/api'
+// axios.defaults.baseURL = 'http://localhost:4200/api'
+
+// axios.defaults.baseURL = '/api'
+
 
 // 'http://localhost:4200/api/admin'
 // axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
@@ -26,7 +29,8 @@ export const store = new Vuex.Store({
         showMessageSectionCompleted: { status: false, section: null },
         sectionsData: [],
         sectionData: null,
-        homeAlreadyFirstLoaded: false
+        homeAlreadyFirstLoaded: false,
+        canGout: false, // Variable exclusiva de Survey
     },
     getters: {
         getSections(state) {
@@ -60,6 +64,9 @@ export const store = new Vuex.Store({
         },
         getCode(state){
             return state.code
+        },
+        getCanGout(state){
+            return state.canGout
         }
     },
     mutations: {
@@ -125,10 +132,10 @@ export const store = new Vuex.Store({
         setFinished(state){
             state.sections = null
             state.homeAlreadyFirstLoaded = false
+        },
+        setCanGout(state, status){
+            state.canGout = status
         }
-
-
-
     },
     actions: {
         getSections(context) {
@@ -141,7 +148,7 @@ export const store = new Vuex.Store({
                 })
                     .then(function (response) {
                         // context.commit('setSections', response.data)
-                        // console.log(response.data);
+                        console.log(response.data);
                         resolve(response.data)
                     })
                     .catch(function (error) {

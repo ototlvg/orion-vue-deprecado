@@ -159,6 +159,7 @@ export default {
                         // console.log()
                         
                         if(result.value){
+                            este.$store.commit('setCanGout', true)
                             este.loading = true
                             
                             este.$store.dispatch('saveAnswersInServer', { page: page, lastSection: este.lastSection })
@@ -374,6 +375,7 @@ $padding-x: 2.5em;
                     cursor: pointer;
                     box-shadow:0 0 3px rgba(0, 0, 0, 0.5);
                     transition: all 0.2s;
+                    user-select: none;
                     @media (min-width: $large){
                         &:hover{
                             transform: scale(1.1);

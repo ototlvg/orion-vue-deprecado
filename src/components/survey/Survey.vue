@@ -17,6 +17,7 @@ export default {
     },
     created(){
         let page = this.$route.params.page
+        this.$store.commit('setCanGout', false)
         // this.$store.dispatch('getStatusQuestionsOfSection', page)
 
         // this.$router.push({ name: 'shera', params: { question: 1 } })
@@ -29,26 +30,46 @@ export default {
 
     },
     beforeRouteLeave (to, from, next) {
-        Swal.fire({
-            title: '¿Estas seguro?',
-            text: "Las preguntas contestadas no seran guardadas",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Entendido'
-        }).then((result) => {
-            if (result.value) {
-                // Swal.fire(
-                //     'Deleted!',
-                //     'Your file has been deleted.',
-                //     'success'
-                // )
-                next()
-            }else{
-                next(false)
-            }
-        })
+
+        const questions = this.$store.getters.getSectionData.sectionStatus
+        let condition = element => element.answer !=null
+        let allQuestionsAnswered = questions.every(condition)
+
+        condition = element => element.answer == null
+        let allQuestionUnanswered = questions.every(condition)
+        console.log('Todas las preguntas contestadas: ' + allQuestionsAnswered)
+        console.log('Todas las preguntas sin contestar: ' + allQuestionUnanswered)
+        
+        let canGout = this.$store.getters.getCanGout
+        console.log('Podemos salir: '+ canGout)
+        
+        // A * B * C + D * B
+        // if(!allQuestionsAnswered && !canGout && !allQuestionUnanswered || !allQuestionUnanswered && !canGout){
+        if( !canGout && ( !allQuestionsAnswered && !allQuestionUnanswered || !allQuestionUnanswered) ){
+            Swal.fire({
+                title: '¿Estas seguro?',
+                text: "Las preguntas contestadas no seran guardadas",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Entendido'
+            }).then((result) => {
+                if (result.value) {
+                    // Swal.fire(
+                    //     'Deleted!',
+                    //     'Your file has been deleted.',
+                    //     'success'
+                    // )
+                    next()
+                }else{
+                    next(false)
+                }
+            })
+
+        }else{
+            next()
+        }
 
         // const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
         // if (answer) {
